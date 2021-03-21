@@ -1,7 +1,7 @@
 #Load packages and train, test path data
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-from import_data import unload_paths
+from find_path_data import unload_paths
 from dask import delayed, compute
 import h5py
 import psutil, time, os,signal
@@ -9,10 +9,21 @@ import memory
 from skimage  import transform
 from preprocessing import read_img
 import pickle5 as pickle
-
+from collections import namedtuple
+import re
 
 #Load path files
 train_path, test_path = unload_paths()
+
+def extract_name(path):
+    '''
+    Function that extract the identifier of the image
+    @path of the image
+    '''
+    match = re.match(".+/(.+)\\.png",path)
+
+    return match.group(1)
+
 
 def img_to_array_delayed(path):
     '''
@@ -21,14 +32,15 @@ def img_to_array_delayed(path):
     '''
 
     #Initialisation 
-    result = []
     tic = time.time()
     
+    result = {}
     for img in path:
         try:
             #preproprocessing 
-            path_i = delayed(read_img)(img) 
-            result.append(path_i)
+            id = extract_name(img)
+            result[id] = delayed(read_img)(img) 
+            
         except:
             print("There was an error at step" + img)
     
@@ -130,5 +142,3 @@ def create_save_imgs_scipy(path, chunks, type_set ="train"):
 
 create_save_imgs_scipy(train_path, 15)
 create_save_imgs_scipy(test_path, 15, type_set = "test")
-
-
