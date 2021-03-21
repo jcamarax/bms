@@ -1,0 +1,12 @@
+#!/bin/bash
+
+
+#Killing all python interpretes
+  for i in $(pgrep -af python)
+  do
+      echo $i
+      kill -TERM  $i
+  done
+
+
+pgrep -af python
