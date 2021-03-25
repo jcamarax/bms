@@ -2,9 +2,8 @@
 import pandas as pd 
 import re
 import numpy as np
-import dask.dataframe as dd
-import multiprocessing
-
+import pickle5 as pickle
+import os
 #Load train_target
 train_target = pd.read_csv('train_labels.csv')
 
@@ -34,12 +33,16 @@ def text_processing(text):
     form = text[1]
     return form
 
-#Creating form colum
-train_target['form'] = train_target['InChI'].apply(text_processing)
+if os.path.exists('train_target_processes.pkl') is False:
+    #Creating form colum
+    train_target['form'] = train_target['InChI'].apply(text_processing)
 
-#Creating count columns 
-atoms = ['C','H', 'Br','Cl','F','B','I','N','O','S','P','Si' ]
-for atom in atoms:
-    train_target[atom] =  train_target['form'].apply(lambda x: count_atom(atom, x))
+    #Creating count columns 
+    atoms = ['C','H', 'Br','Cl','F','B','I','N','O','S','P','Si' ]
+    for atom in atoms:
+        train_target[atom] =  train_target['form'].apply(lambda x: count_atom(atom, x))
 
-with open
+with open('train_target_processes.pkl', 'wb') as handle:
+    pickle.dump(train_target, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+
