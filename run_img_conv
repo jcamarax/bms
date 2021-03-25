@@ -1,19 +1,19 @@
 #!/bin/bash
 
 #Killing all python interpretes
+
   for i in $(pgrep -af python)
   do
       echo $i
       kill -TERM  $i
   done
 
+
 for i in {1..15}
 do 
 
   python img_conversion.py
-  
-  #Killing all python interpretes
-  for i in $(pgrep -af python)
+    for i in $(pgrep -af python)
   do
       echo $i
       kill -TERM  $i

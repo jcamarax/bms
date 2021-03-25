@@ -4,7 +4,7 @@ import matplotlib.image as mpimg
 from skimage  import transform, util
 import scipy
 import numpy as np
-
+import pickle5 as pickle
 
 
 def read_img(img):    
@@ -13,19 +13,12 @@ def read_img(img):
     img = scipy.sparse.csr_matrix(img)
     return img
 
-#f = h5py.File('train_img/train_0.h5py','r')
+with open('train_img/train_0.pkl', 'rb') as handle:
+    images = pickle.load(handle)
 
-
-#print keys
-#keys = list(f.keys())
-#img_0 = f[keys[0]]
-
-#img = img_0['1100'][:]
-
-
-#test = scipy.sparse.csr_matrix(util.invert(img))
-
-#plt.imshow(util.invert(img))
-#plt.show()
+img_id = list(images.keys())
+img_test = images[img_id[10000]].toarray()
+plt.imshow(img_test)
+plt.show()
 
 
