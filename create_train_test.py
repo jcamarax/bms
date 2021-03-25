@@ -4,6 +4,8 @@ import re
 import numpy as np
 import pickle5 as pickle
 import os
+import time
+from dask import delayed,compute
 #Load train_target
 train_target = pd.read_csv('train_labels.csv')
 
@@ -33,6 +35,7 @@ def text_processing(text):
     form = text[1]
     return form
 
+#Run processing train target if not present
 if os.path.exists('train_target_processes.pkl') is False:
     #Creating form colum
     train_target['form'] = train_target['InChI'].apply(text_processing)
@@ -42,7 +45,26 @@ if os.path.exists('train_target_processes.pkl') is False:
     for atom in atoms:
         train_target[atom] =  train_target['form'].apply(lambda x: count_atom(atom, x))
 
-with open('train_target_processes.pkl', 'wb') as handle:
-    pickle.dump(train_target, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    with open('train_target_processes.pkl', 'wb') as handle:
+        pickle.dump(train_target, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
+#Unpickling train np arrays
+
+def load_train(index):
+    '''
+    Function to load train data with index
+    @index: ex train_0 has index 0
+    '''
+    path = "".join(['train_img/train_',str(index), '.pkl'])
+    with open(path, 'rb') as handle:
+        images = pickle.load(handle)
+
+    return images
+
+train = {}
+for index in range(0,15):
+    train.update(load_train(index))
+
+with open('train_all_src.pkl','wb') as handle:
+    pickle.load(train, handle, protocol=pickle.HIGHEST_PROTOCOL)
 

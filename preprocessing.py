@@ -13,8 +13,7 @@ def read_img(img):
     img = scipy.sparse.csr_matrix(img)
     return img
 
-with open('train_img/train_0.pkl', 'rb') as handle:
-    images = pickle.load(handle)
+
 
 img_id = list(images.keys())
 img_test = images[img_id[10000]].toarray()
