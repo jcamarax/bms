@@ -1,45 +1,45 @@
 #Load packages
 import pandas as pd 
 import re
-
+import numpy as np
+import dask.dataframe as dd
+import multiprocessing
 
 #Load train_target
 train_target = pd.read_csv('train_labels.csv')
 
-#find longest string
-train_target['InChI'].apply(len).sort_values(ascending = False).head(1)
-
-#Preprocessing the inchi
-text = train_target.iloc[646416,1]
-text_spl = text.split('/')
-
-def text_processing(text):
-    text = text.split('/')
-    form = text[1]
-    return form
-
-train_target['form'] = train_target['InChI'].apply(text_processing)
-train_target['form'].apply(len).sort_values(ascending = False).head(5)
-
-#Finding the longest string
-formula = train_target.iloc[1212419,2]
-
-
-df = train_target.set_index("ainimage_id")
-df.iloc[646416,:]
 
 #Function to count atoms
 def count_atom(atom, formula):
     '''
     Function to count the number of atoms in the InChl formula
     @atom: atom to search in formula
+    @formula
     '''
 
-    pattern = "".join(['(?<=',atom,')\d{1,2}'])
-    count = re.search(pattern,formula).group(0)
-    return count
+    pattern1 = "".join(['(?<=',atom,')\d{1,2}']) #Pattern to find atoms > 2 units
+    pattern2 = "".join(['(?<=',atom,')(\w|)']) #Pattern to find atom = 1
+    count1 = re.search(pattern1,formula)
+    count2 = re.search(pattern2,formula)
+    if count1 is not None:
+        return int(count1.group(0))
+    elif count2 is not None:
+        return int(1)
+    else:
+        return int(0)
+    
+#Function to extract second segment of InChl
+def text_processing(text):
+    text = text.split('/')
+    form = text[1]
+    return form
 
+#Creating form colum
+train_target['form'] = train_target['InChI'].apply(text_processing)
 
-count_atom('Cl', formula)
-list(map(lambda x: count_atom(x,formula),['C','H','O']))
+#Creating count columns 
+atoms = ['C','H', 'Br','Cl','F','B','I','N','O','S','P','Si' ]
+for atom in atoms:
+    train_target[atom] =  train_target['form'].apply(lambda x: count_atom(atom, x))
 
+with open
